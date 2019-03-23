@@ -57,6 +57,9 @@ public class Elevator extends Subsystem {
 
     private int m_maxVal;
 
+    private boolean m_waiting;
+    private double m_waitTimer;
+
     private double prev_error;
     private ArrayList<Double> integral = new ArrayList<Double>();
 
@@ -106,11 +109,21 @@ public class Elevator extends Subsystem {
             m_innerStageHeight = m_innerStageEncoder.getPosition();
             m_middleStageHeight = m_middleStageEncoder.getPosition();
 
+            if (m_waiting) {
+                m_waitTimer += deltaTime;
+                if (m_waitTimer > 500) {
+                    m_moving = true;
+                    m_waiting = false;
+                    m_heightState = 0;
+                    m_motionStage = 0;
+                }
+            }
+
             if (input.extraButton.get()) {
                 m_innerStageEncoder.zero();
                 m_middleStageEncoder.zero();
-                m_innerStageController.set(ControlMode.PercentOutput, 0.3);
-                m_middleStageController.set(ControlMode.PercentOutput, 0.3);
+                //m_innerStageController.set(ControlMode.PercentOutput, 0.3);
+                //m_middleStageController.set(ControlMode.PercentOutput, 0.3);
             } else {
                 if (m_heightState == 0) {
                     m_innerStagePIDController.setSetpoint(0);
@@ -191,16 +204,11 @@ public class Elevator extends Subsystem {
                         m_heightState = 3;
                         m_motionStage = 0;
                     }
-                    if (input.cargoPickupButton.get() && !m_moving && input.robotMode == false) {
-                        m_moving = true;
-                        m_heightState = 4;
-                        m_motionStage = 0;
-                    }
                 } else if (m_heightState == 3) {
                     if (m_motionStage == 0) {
                         m_innerStagePIDController.setSetpoint(28);
                         m_middleStagePIDController.setSetpoint(0);
-                        m_innerStageController.set(ControlMode.PercentOutput, clamp(m_innerStagePIDController.calculate(m_innerStageHeight, this.deltaTime), -1.0, 1.0) * 1.15 * 0.6);
+                        m_innerStageController.set(ControlMode.PercentOutput, clamp(m_innerStagePIDController.calculate(m_innerStageHeight, this.deltaTime), -1.0, 1.0) * 1.1 * 0.6);
                         if (m_middleStageHeight > 1.5) {
                             m_middleStageController.set(ControlMode.PercentOutput, clamp(m_middleStagePIDController.calculate(m_middleStageHeight, this.deltaTime), -0.6, 1.0));
                         } else {
@@ -230,10 +238,9 @@ public class Elevator extends Subsystem {
                     if (Math.abs(m_innerStageHeight - (m_innerStagePIDController.setpoint)) < k_acceptableEncoderError) {
                         m_moving = false;
                     }
-                    if ((input.lowDeliverButton.get() || input.safePositionButton.get()) && !m_moving) {
-                        m_moving = true;
-                        m_heightState = 0;
-                        m_motionStage = 0;
+                    if ((input.safePositionButton.get()) && !m_moving) {
+                        m_waiting = true;
+                        m_waitTimer = 0;
                     }
                 } else if (m_heightState == 5) {
                     m_innerStagePIDController.setSetpoint(12);

@@ -14,10 +14,11 @@ import frc.robot.auto.commands.ScootBack;
 public class StraightToHoldAuto extends CommandGroup {
     public StraightToHoldAuto() {
         System.out.println("=====\nAUTO: Straight To Hold Auto\n=====");
-        addParallel(new ZeroSubsystems());
+        addSequential(new ZeroSubsystems());
         addParallel(new DriveForwardToHold(0.5, 2.0));
-        addSequential(new SetBoomPosition(1024));
+        addParallel(new SetBoomPosition(900));
+        addSequential(new Sleep(2.5));
         addParallel(new EjectHatch());
-        addParallel(new ScootBack(0.6, 0.5));
+        addParallel(new ScootBack(0.5, 0.5));
     }
 }

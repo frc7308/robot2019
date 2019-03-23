@@ -13,9 +13,11 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.command.Scheduler;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -26,6 +28,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Boom;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.auto.StraightToHoldAuto;
 
 public class Robot extends TimedRobot {
   public static Elevator elevator;
@@ -45,10 +48,14 @@ public class Robot extends TimedRobot {
 
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
+  private SendableChooser autoChooser;
+  private CommandGroup StraightToHold;
+
 	//LightDriveCAN ledController;
 
   @Override
   public void robotInit() {
+
     this.elevator = new Elevator();
     this.intake = new Intake();
     this.drivetrain = new Drivetrain();
@@ -68,6 +75,11 @@ public class Robot extends TimedRobot {
     ledController.SetColor(1, java.awt.Color.BLUE);
     ledController.SetColor(2, java.awt.Color.BLUE, 1.0);
     ledController.Update();*/
+
+    StraightToHold = new StraightToHoldAuto();
+
+    NetworkTableEntry ledMode = table.getEntry("ledMode");
+    ledMode.setNumber(1);
   }
 
   @Override
@@ -100,13 +112,19 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     loopMaster.setGameState("Autonomous");
-    m_autoSelected = m_chooser.getSelected();
-    System.out.println("Auto selected: " + m_autoSelected);
+
+    //SmartDashboard.putString("Mode", "Autonomous");
+
+    // Run the appropriate auto based on game condition and driver station selection.
+
+    //String selectedAuto = (String) autoChooser.getSelected();
+    //StraightToHold.start();
+    // Run autos based on selection
   }
 
   @Override
   public void autonomousPeriodic() {
-
+    //Scheduler.getInstance().run();
   }
 
   @Override

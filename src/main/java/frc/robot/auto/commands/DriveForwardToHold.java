@@ -15,10 +15,11 @@ public class DriveForwardToHold extends Command {
 
     protected void initialize() {
         setTimeout(this.time);
-        Robot.drivetrain.ArcadeDrive(this.speed, 0.0);
     }
 
     protected void execute() {
+        System.out.println("hi");
+        Robot.drivetrain.AutoDrive(-this.speed, 0.0);
     }
 
     protected boolean isFinished() {
@@ -26,10 +27,10 @@ public class DriveForwardToHold extends Command {
     }
 
     protected void end() {
-        Robot.drivetrain.ArcadeDrive(speed, 0.0);
+        Robot.drivetrain.AutoDrive(0.0, 0.0);
     }
 
     protected void interrupted() {
-        Robot.drivetrain.ArcadeDrive(speed, 0.0);
+        Robot.drivetrain.AutoDrive(0.0, 0.0);
     }
 }

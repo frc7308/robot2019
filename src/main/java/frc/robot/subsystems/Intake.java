@@ -34,52 +34,54 @@ public class Intake extends Subsystem {
     public final ControlLoop controlLoop = new ControlLoop() {
         @Override
         public void loopPeriodic() {
-            if (input.hatchModeButton.get()) {
-                input.robotMode = true;
-            }
-            if (input.cargoModeButton.get()) {
-                input.robotMode = false;
-            }
-
-            if (input.switchController.getThrottle() > 0.8) {
-                spitting = true;
-            } else {
-                spitting = false;
-            }
-            if (input.cargoPickupButton.get()) {
-                pickingUp = true;
-            }
-            if (input.safePositionButton.get() || input.cargoDeliverButton.get() || input.lowDeliverButton.get() || input.midDeliverButton.get() || input.highDeliverButton.get()) {
-                pickingUp = false;
-            }
-
-            if (spitting) {
-                if (input.robotMode == true) {
-                    ejectorSolenoid.set(DoubleSolenoid.Value.kForward);
-                    velcroSolenoid.set(DoubleSolenoid.Value.kReverse);
+            //if (gameState.equals("Teleop")) {
+                if (input.hatchModeButton.get()) {
+                    input.robotMode = true;
                 }
-                if (input.robotMode == false) {
-                    m_topIntakeController.set(ControlMode.PercentOutput, -1.0);
-                    m_bottomIntakeController.set(ControlMode.PercentOutput, 1.0);
+                if (input.cargoModeButton.get()) {
+                    input.robotMode = false;
                 }
-                //System.out.println("\n\n");
-            } else {
-                if (input.robotMode == true) {
-                    velcroSolenoid.set(DoubleSolenoid.Value.kForward);
-                    m_topIntakeController.set(ControlMode.PercentOutput, 0.0);
-                    m_bottomIntakeController.set(ControlMode.PercentOutput, 0.0);
+
+                if (input.switchController.getThrottle() > 0.8) {
+                    spitting = true;
                 } else {
-                    velcroSolenoid.set(DoubleSolenoid.Value.kReverse);
-                    if (pickingUp) {
-                        m_topIntakeController.set(ControlMode.PercentOutput, 1.0);
-                        m_bottomIntakeController.set(ControlMode.PercentOutput, -1.0);
-                    } else {
-                        m_topIntakeController.set(ControlMode.PercentOutput, 0.4);
-                        m_bottomIntakeController.set(ControlMode.PercentOutput, -0.4);
-                    }
+                    spitting = false;
                 }
-                ejectorSolenoid.set(DoubleSolenoid.Value.kReverse);
-            }
+                if (input.cargoPickupButton.get()) {
+                    pickingUp = true;
+                }
+                if (input.safePositionButton.get() || input.cargoDeliverButton.get() || input.lowDeliverButton.get() || input.midDeliverButton.get() || input.highDeliverButton.get()) {
+                    pickingUp = false;
+                }
+
+                if (spitting) {
+                    if (input.robotMode == true) {
+                        ejectorSolenoid.set(DoubleSolenoid.Value.kForward);
+                        velcroSolenoid.set(DoubleSolenoid.Value.kReverse);
+                    }
+                    if (input.robotMode == false) {
+                        m_topIntakeController.set(ControlMode.PercentOutput, -1.0);
+                        m_bottomIntakeController.set(ControlMode.PercentOutput, 1.0);
+                    }
+                    //System.out.println("\n\n");
+                } else {
+                    if (input.robotMode == true) {
+                        velcroSolenoid.set(DoubleSolenoid.Value.kForward);
+                        m_topIntakeController.set(ControlMode.PercentOutput, 0.0);
+                        m_bottomIntakeController.set(ControlMode.PercentOutput, 0.0);
+                    } else {
+                        velcroSolenoid.set(DoubleSolenoid.Value.kReverse);
+                        if (pickingUp) {
+                            m_topIntakeController.set(ControlMode.PercentOutput, 1.0);
+                            m_bottomIntakeController.set(ControlMode.PercentOutput, -1.0);
+                        } else {
+                            m_topIntakeController.set(ControlMode.PercentOutput, 0.4);
+                            m_bottomIntakeController.set(ControlMode.PercentOutput, -0.4);
+                        }
+                    }
+                    ejectorSolenoid.set(DoubleSolenoid.Value.kReverse);
+                }
+            //}
 
             /*if (input.intakeButton.get()) {
                 m_topIntakeController.set(ControlMode.PercentOutput, 1.0);

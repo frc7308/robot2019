@@ -29,11 +29,11 @@ public class Boom extends Subsystem {
 
     private double k_encoderTicksPerRevolutions = 4096;
 
-    private double k_arbitraryFeedforward = -0.45;
+    private double k_arbitraryFeedforward = -0.475;
     private double k_F = 0.0;
-    private double k_P = 0.5;
-    private double k_I = 0.00005;
-    private double k_D = 2.0;
+    private double k_P = 0.55;
+    private double k_I = 0.01;
+    private double k_D = 20.0;
 
     /*private double k_feedforward = 0.0;
     private double k_P = 0.4;
@@ -45,10 +45,10 @@ public class Boom extends Subsystem {
     private double k_D_DOWN = 10.0;*/
 
     public static double m_setpoint = 0;
-    public static double k_acceptableRange = 0.225;
+    public static double k_acceptableRange = 0.2;
     public static double k_acceptableRangeTicks = 145;
 
-    private double k_gravityCoefficient = -0.25;
+    private double k_gravityCoefficient = -0.3;
 
     private int k_timeoutMs = 100;
 
@@ -82,6 +82,9 @@ public class Boom extends Subsystem {
 
         brakeSolenoid = new DoubleSolenoid(4, 5);
 
+        m_boomController.configMotionCruiseVelocity(150);
+        m_boomController.configMotionAcceleration(50);
+
         m_boomController.configNominalOutputForward(0, k_timeoutMs);
         m_boomController.configNominalOutputReverse(0, k_timeoutMs);
 		m_boomController.configPeakOutputForward(0.85, k_timeoutMs);
@@ -93,7 +96,14 @@ public class Boom extends Subsystem {
 		m_boomController.config_kI(0, k_I, k_timeoutMs);
         m_boomController.config_kD(0, k_D, k_timeoutMs);
 
-        m_boomController.setSelectedSensorPosition(0, 0, k_timeoutMs);
+        m_boomController.configAllowableClosedloopError(0, 50, k_timeoutMs);
+
+        //m_boomController.configMaxIntegralAccumulator(0, iaccum);
+        m_boomController.config_IntegralZone(0, 300);
+
+        zero();
+
+        //m_boomController.setSelectedSensorPosition(0, 0, k_timeoutMs);
     }
 
     public void zero() {
@@ -104,6 +114,8 @@ public class Boom extends Subsystem {
         @Override
         public void loopPeriodic() {
             //brakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+
+            //System.out.println("Test");
             
             double boomPosition = encoderTicksToRadians(m_boomController.getSelectedSensorPosition());
             double boomVelocity = (m_boomController.getSelectedSensorVelocity() * 10);
@@ -115,17 +127,27 @@ public class Boom extends Subsystem {
 
             //m_boomController.config_kF(0, calculateFeedForward(, ), k_timeoutMs);
 
+            if (input.extraButton.get()) {
+                zero();
+            }
+
+            //if (gameState.equals("Teleop")) {
             if (input.safePositionButton.get()) {
                 m_boomState = 0;
             }
             if ((input.cargoDeliverButton.get())) {
                 m_boomState = 1;
             }
-            if ((input.lowDeliverButton.get() || input.midDeliverButton.get() || input.highDeliverButton.get())) {
+            if (((input.lowDeliverButton.get() || input.midDeliverButton.get() || input.highDeliverButton.get()) && m_boomState == 0 && m_boomController.getClosedLoopError() < 150) && input.robotDirection == true) {
                 m_boomState = 2;
             }
-            if (input.cargoPickupButton.get() && (m_boomState == 0 || m_boomState == 2) && input.robotMode == false) {
+            if (((input.lowDeliverButton.get() || input.midDeliverButton.get() || input.highDeliverButton.get()) && m_boomState == 0 && m_boomController.getClosedLoopError() < 150) && input.robotDirection == false) {
                 m_boomState = 3;
+            }
+            if (input.cargoPickupButton.get() && m_boomState == 0 && m_boomController.getClosedLoopError() < 150) {
+                System.out.println("HI");
+                input.robotMode = false;
+                m_boomState = 4;
             }
             if (input.backModeButton.get()) {
                 input.robotDirection = false;
@@ -137,35 +159,40 @@ public class Boom extends Subsystem {
                 input.robotDirection = false;
             }
 
-
+                
             if (m_boomState == 0) {
                 m_setpoint = 0;
             }
             if (m_boomState == 1) {
-                if (input.robotMode == false) {
-                    if (input.robotDirection == true) {
-                        m_setpoint = 800;
+                if (m_setpoint != 1500 || m_setpoint != -1500) {
+                    if (input.robotMode == false) {
+                        if (input.robotDirection == true) {
+                            m_setpoint = 800;
+                        } else {
+                            m_setpoint = 800;
+                        }
+                    }
+                }
+            }
+            if (m_boomState == 2) {
+                if (m_setpoint != 1500 || m_setpoint != -1500) {
+                    if (input.robotMode == true) {
+                        m_setpoint = 1100;
                     } else {
                         m_setpoint = 800;
                     }
                 }
             }
-            if (m_boomState == 2) {
-                if (input.robotDirection == true) {
+            if (m_boomState == 3) {
+                if (m_setpoint != 1500 || m_setpoint != -1500) {
                     if (input.robotMode == true) {
-                        m_setpoint = 1024;
-                    } else {
-                        m_setpoint = 800;
-                    }
-                } else {
-                    if (input.robotMode == true) {
-                        m_setpoint = -1024;
+                        m_setpoint = -1100;
                     } else {
                         m_setpoint = -800;
                     }
                 }
             }
-            if (m_boomState == 3) {
+            if (m_boomState == 4) {
                 if (m_setpoint != 1500 || m_setpoint != -1500) {
                     if (input.robotDirection == true) {
                         m_setpoint = 1500;
@@ -175,6 +202,8 @@ public class Boom extends Subsystem {
                 }
             }
 
+            //}
+
             double error = boomPosition - encoderTicksToRadians(m_setpoint);
             double targetVelocity = 0;
             if (Math.abs(error) < k_acceptableRange) {
@@ -182,16 +211,18 @@ public class Boom extends Subsystem {
             } else {
                 brakeSolenoid.set(DoubleSolenoid.Value.kForward);
             }
+            //m_boomController.set(ControlMode.MotionMagic, m_setpoint, DemandType.ArbitraryFeedForward, calculateFeedForward(boomPosition));
             m_boomController.set(ControlMode.Position, m_setpoint, DemandType.ArbitraryFeedForward, calculateFeedForward(boomPosition));
             
-            //radiansToEncoderTicks(speed) / 50;
+            //m_boomController.set(ControlMode.PercentOutput, calculateFeedForward(boomPosition));
 
+            //radiansToEncoderTicks(speed) / 50;
 
             SmartDashboard.putNumber("Target Velocity", encoderTicksToRadians(m_setpoint));
             SmartDashboard.putNumber("Actual Velocity", boomPosition);
             SmartDashboard.putNumber("Error", error);
 
-            //System.out.println(m_setpoint);
+            System.out.println(m_setpoint);//m_boomController.getClosedLoopError());
 
             //System.out.println(calculateFeedForward(boomPosition));
 

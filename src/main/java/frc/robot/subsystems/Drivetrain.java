@@ -70,6 +70,8 @@ public class Drivetrain extends Subsystem {
     private double m_gyroOffset;
     private double m_angleSetpoint;
 
+    private double k_motionMagicAcceptableError;
+
     private PIDController m_PIDController;
 
     Waypoint[] points = new Waypoint[] {
@@ -126,15 +128,17 @@ public class Drivetrain extends Subsystem {
         public void loopPeriodic() {
 
             // Drive under operator control during teleop.
-            if (gameState.equals("Teleop")) {
+            //if (gameState.equals("Teleop")) {
                 double[] driveSpeed = {0.0, 0.0};
                 //driveSpeed = CurvatureDrive(input.throttleStick.getY(), input.wheel.getX(), input.quickTurnButton.get());
-                if (input.switchController.getZ() > 0.8) {
+                /*if (input.autoAlignButton.get()) {
+                    NetworkTableEntry ledMode = table.getEntry("ledMode");
+                    ledMode.setNumber(3);
                     aligning = true;
                     NetworkTableEntry tx = table.getEntry("tx");
                     m_PIDController.setSetpoint(tx.getDouble(0.0));
                     m_gyroOffset = m_gyro.getAngle();
-                }
+                }*/
                 
                 if (aligning) {
                     if (Math.abs(m_gyro.getAngle() - m_gyroOffset - m_PIDController.setpoint) < 5) {
@@ -146,7 +150,10 @@ public class Drivetrain extends Subsystem {
                         driveSpeed = ArcadeDrive(input.switchController.getY(), -turn);
                     }
                 } else {
-                    driveSpeed = CurvatureDrive(input.switchController.getY(), input.switchController.getX(), input.quickTurnButton.get());
+                    NetworkTableEntry ledMode = table.getEntry("ledMode");
+                    ledMode.setNumber(1);
+
+                    driveSpeed = CurvatureDrive(input.switchController.getY(), input.switchController.getX(), (input.switchController.getZ() > 0.8));
                 }
 
                 double currHeight = Elevator.m_middleStageHeight * 2 + Elevator.m_innerStageHeight;
@@ -156,7 +163,7 @@ public class Drivetrain extends Subsystem {
                 m_leftController2.set(ControlMode.PercentOutput, driveSpeed[0]);
                 m_rightController1.set(ControlMode.PercentOutput, driveSpeed[1]);
                 m_rightController2.set(ControlMode.PercentOutput, driveSpeed[1]);
-            } else if (gameState.equals("Autonomous")) {
+            //} else if (gameState.equals("Autonomous")) {
                 /*if (m_followingAuto) {
                     followTrajectory(leftEnc, rightEnc);
                 } else {
@@ -165,10 +172,10 @@ public class Drivetrain extends Subsystem {
                     m_rightController1.set(ControlMode.PercentOutput, 0.0);
                     m_rightController2.set(ControlMode.PercentOutput, 0.0);
                 }*/
-            }
+            //}
 
-            System.out.println("L: " + leftEncoder.get());
-            System.out.println("R: " + rightEncoder.get() + "\n");
+            //System.out.println("L: " + leftEncoder.get());
+            //System.out.println("R: " + rightEncoder.get() + "\n");
         }
     };
 
@@ -205,6 +212,15 @@ public class Drivetrain extends Subsystem {
         double right = throttle + rotation;
         double[] speed = {left, -right};
         return speed;
+    }
+
+    public void AutoDrive(double throttle, double rotation) {
+        double left = throttle - rotation;
+        double right = throttle + rotation;
+        m_leftController1.set(ControlMode.PercentOutput, left);
+        m_leftController2.set(ControlMode.PercentOutput, left);
+        m_rightController1.set(ControlMode.PercentOutput, -right);
+        m_rightController2.set(ControlMode.PercentOutput, -right);
     }
 
     // Curvature Drive adapted from 254 and 971's drive code.
