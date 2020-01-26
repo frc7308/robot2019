@@ -12,20 +12,20 @@ public class SetBoomPosition extends Command {
     }
 
     protected void initialize() {
-        Robot.boom.m_setpoint = setpoint;
+       // Robot.boom.m_setpoint = setpoint;
     }
 
     protected void execute() {
     }
 
     protected boolean isFinished() {
-        return Robot.boom.m_boomController.getClosedLoopError() < Robot.boom.k_acceptableRangeTicks;
+        return true;//Robot.boom.m_boomController.getClosedLoopError() < Robot.boom.k_acceptableRangeTicks;
     }
 
     protected void end() {
     }
 
     protected void interrupted() {
-        Robot.boom.m_setpoint = 0;
+        //Robot.boom.m_setpoint = 0;
     }
 }

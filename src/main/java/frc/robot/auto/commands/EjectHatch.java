@@ -12,8 +12,6 @@ public class EjectHatch extends Command {
     }
 
     protected void initialize() {
-        Robot.intake.ejectorSolenoid.set(DoubleSolenoid.Value.kForward);
-        Robot.intake.velcroSolenoid.set(DoubleSolenoid.Value.kReverse);
         setTimeout(0.5);
     }
 
@@ -25,12 +23,8 @@ public class EjectHatch extends Command {
     }
 
     protected void end() {
-        Robot.intake.ejectorSolenoid.set(DoubleSolenoid.Value.kReverse);
-        Robot.intake.velcroSolenoid.set(DoubleSolenoid.Value.kForward);
     }
 
     protected void interrupted() {
-        Robot.intake.ejectorSolenoid.set(DoubleSolenoid.Value.kReverse);
-        Robot.intake.velcroSolenoid.set(DoubleSolenoid.Value.kForward);
     }
 }

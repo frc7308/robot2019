@@ -14,8 +14,8 @@ public class Intake extends Subsystem {
 
     private VictorSPX m_topIntakeController;
     private VictorSPX m_bottomIntakeController;
-    public static DoubleSolenoid velcroSolenoid = new DoubleSolenoid(2, 3);
-    public static DoubleSolenoid ejectorSolenoid = new DoubleSolenoid(1, 0);
+    public static DoubleSolenoid releaseSolenoid = new DoubleSolenoid(0, 1);
+    public static DoubleSolenoid outInSolenoid = new DoubleSolenoid(2, 3);
 
     /*private JoystickButton velcroOutButton = new JoystickButton(joy, 3);
     private JoystickButton velcroInButton = new JoystickButton(joy, 2);
@@ -26,6 +26,8 @@ public class Intake extends Subsystem {
     private boolean pickingUp = false;
     private int rollerMode = 0; // 0 = none, 1 = in, 3 = hold
 
+    private boolean out = false;
+
     public Intake() {
         m_topIntakeController = new VictorSPX(8);
         m_bottomIntakeController = new VictorSPX(9);
@@ -34,8 +36,25 @@ public class Intake extends Subsystem {
     public final ControlLoop controlLoop = new ControlLoop() {
         @Override
         public void loopPeriodic() {
+            if (input.switchController.getThrottle() > 0.8) {
+                releaseSolenoid.set(DoubleSolenoid.Value.kReverse);
+            } else {
+                releaseSolenoid.set(DoubleSolenoid.Value.kForward);
+            }
+            if (input.outButton.get()) {
+                out = true;
+            } else if (input.inButton.get()) {
+                out = false;
+            }
+
+            if (out) {
+                outInSolenoid.set(DoubleSolenoid.Value.kReverse);
+            } else {
+                outInSolenoid.set(DoubleSolenoid.Value.kForward);
+            }
+
             //if (gameState.equals("Teleop")) {
-                if (input.hatchModeButton.get()) {
+                /*if (input.hatchModeButton.get()) {
                     input.robotMode = true;
                 }
                 if (input.cargoModeButton.get()) {

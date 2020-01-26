@@ -23,6 +23,7 @@ public class RobotInput {
     public JoystickButton quickTurnButton;
     public JoystickButton autoAlignButton;
     public JoystickButton spitbutton;
+    public JoystickButton releaseButton;
 
     public JoystickButton highDeliverButton;
     public JoystickButton midDeliverButton;
@@ -35,6 +36,8 @@ public class RobotInput {
     public JoystickButton cargoModeButton;
     public JoystickButton frontModeButton;
     public JoystickButton backModeButton;
+    public JoystickButton outButton;
+    public JoystickButton inButton;
 
     public boolean elevatorState;
     public boolean robotMode;
@@ -51,11 +54,11 @@ public class RobotInput {
         this.switchController.setZChannel(2);
         this.switchController.setThrottleChannel(3);
     
-        //this.quickTurnButton = new JoystickButton(switchController, 7);
-        this.autoAlignButton = new JoystickButton(switchController, 6);
+        this.quickTurnButton = new JoystickButton(switchController, 7);
+        this.releaseButton = new JoystickButton(switchController, 6);
         //this.spitbutton = new JoystickButton(switchController, 6);
 
-        this.highDeliverButton = new JoystickButton(this.buttonBoard, 1);
+        /*this.highDeliverButton = new JoystickButton(this.buttonBoard, 1);
         this.midDeliverButton = new JoystickButton(this.buttonBoard, 2);
         this.lowDeliverButton = new JoystickButton(this.buttonBoard, 3);
         this.safePositionButton = new JoystickButton(this.buttonBoard, 4);
@@ -65,7 +68,9 @@ public class RobotInput {
         this.hatchModeButton = new JoystickButton(this.buttonBoard, 8);
         this.cargoModeButton = new JoystickButton(this.buttonBoard, 9);
         this.frontModeButton = new JoystickButton(this.buttonBoard, 10);
-        this.backModeButton = new JoystickButton(this.buttonBoard, 11);
+        this.backModeButton = new JoystickButton(this.buttonBoard, 11);*/
+        this.outButton = new JoystickButton(this.buttonBoard, 8);
+        this.inButton = new JoystickButton(this.buttonBoard, 9);
     
         this.robotMode = true;
         this.robotDirection = true;

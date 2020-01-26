@@ -231,7 +231,14 @@ public class Drivetrain extends Subsystem {
         double angularPower;
         boolean overPower;
 
-        if (quickTurn) {
+        int pov = input.switchController.getPOV();
+        if(pov >= 45 && pov <= 135) {
+            angularPower = 0.35;
+            overPower = true;
+        } else if (pov >= 225 && pov <= 315) {
+            angularPower = -0.35;
+            overPower = true;
+        } else if (quickTurn) {
             if (Math.abs(xSpeed) < m_quickStopThreshold) {
                 m_quickStopAccumulator = (1 - m_quickStopAlpha) * m_quickStopAccumulator
                     + m_quickStopAlpha * zRotation * 2;

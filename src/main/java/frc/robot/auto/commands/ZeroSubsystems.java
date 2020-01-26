@@ -12,7 +12,7 @@ public class ZeroSubsystems extends Command {
     }
 
     protected void initialize() {
-        Robot.boom.zero();
+        //Robot.boom.zero();
         //Robot.elevator.m_innerStageController.set(ControlMode.PercentOutput, -0.35);
         //Robot.elevator.m_middleStageController.set(ControlMode.PercentOutput, 0.35);
         setTimeout(0.4);
@@ -28,7 +28,7 @@ public class ZeroSubsystems extends Command {
     protected void end() {
         //Robot.elevator.m_innerStageController.set(ControlMode.PercentOutput, 0.0);
         //Robot.elevator.m_middleStageController.set(ControlMode.PercentOutput, 0.0);
-        Robot.elevator.zero();
+       // Robot.elevator.zero();
     }
 
     protected void interrupted() {
